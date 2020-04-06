@@ -19,18 +19,15 @@ public class Tablero {
 			for (int j = y - 1; j <= y + 1; j++) {
 				Coordenada alrededor = new Coordenada(i, j);
 				// No tengo en cuenta la posicion que estoy comprobando
-				if (!alrededor.equals(posicionMinaCoordenada)) {
-					if (isDentroLimites(alrededor) && getCasilla(alrededor).isMina()) {
-						getCasilla(posicionMinaCoordenada)
-								.setMinasAlrededor(getCasilla(posicionMinaCoordenada).getMinasAlrededor() + 1);
-					}
+				if (!alrededor.equals(posicionMinaCoordenada) && isDentroLimites(alrededor)) {
+					getCasilla(alrededor).setMinasAlrededor(getCasilla(alrededor).getMinasAlrededor() + 1);
 				}
 			}
 		}
 	}
 
 	private boolean isDentroLimites(Coordenada alrededor) {
-		int tamannoTablero = this.casillas.length;
+		int tamannoTablero = this.casillas.length - 1;
 		return (alrededor.getPosX() >= 0 && alrededor.getPosX() <= tamannoTablero)
 				&& (alrededor.getPosY() >= 0 && alrededor.getPosY() <= tamannoTablero);
 	}
@@ -44,7 +41,7 @@ public class Tablero {
 		int numeroFila;
 		int numeroColumna;
 		do {
-			numeroFila = Utiles.dameNumero(lado);
+			numeroFila = Utiles.generaCoordenadaAleatorio(lado);
 			numeroColumna = Utiles.dameNumero(lado);
 			posicionMinaCoordenada = new Coordenada(numeroFila, numeroColumna);
 			if (!isMina(posicionMinaCoordenada)) {
@@ -58,6 +55,11 @@ public class Tablero {
 	private void crearTablero(int lado) {
 		this.casillas = new Casilla[lado][lado];
 		// ahora hay que crear los objetos casilla
+		for (int i = 0; i < casillas.length; i++) {
+			for (int j = 0; j < casillas[i].length; j++) {
+				casillas[i][j] = new Casilla();
+			}
+		}
 	}
 
 	// TODO antes todo esto era private
@@ -75,6 +77,36 @@ public class Tablero {
 
 	public boolean desvelarCasilla(Coordenada coordenada) {
 		boolean respuesta = false;
+		respuesta = desvelarCasillaDesvelada(coordenada);
+		respuesta = desvelarCasillaVelada(coordenada);
+		return respuesta;
+	}
+
+	public boolean desvelarCasillaDesvelada(Coordenada coordenada) {
+		boolean respuesta = false;
+		if (!getCasilla(coordenada).isVelada() && casillasMarcadasAlrededor(coordenada)) {
+			respuesta = desvelarCasillasAlrededor(coordenada);
+		}
+		return respuesta;
+	}
+
+	public boolean casillasMarcadasAlrededor(Coordenada coordenada) {
+		int contadorMarcadas = 0;
+		int x = coordenada.getPosX();
+		int y = coordenada.getPosY();
+		for (int i = x - 1; i <= x + 1; i++) {
+			for (int j = y - 1; j <= y + 1; j++) {
+				Coordenada alrededor = new Coordenada(i, j);
+				if (!alrededor.equals(coordenada) && isDentroLimites(alrededor) && getCasilla(alrededor).isMarcada()) {
+					contadorMarcadas++;
+				}
+			}
+		}
+		return getCasilla(coordenada).getMinasAlrededor() == contadorMarcadas;
+	}
+
+	public boolean desvelarCasillaVelada(Coordenada coordenada) {
+		boolean respuesta = false;
 		if (!getCasilla(coordenada).isMarcada() && getCasilla(coordenada).isVelada()) {
 			getCasilla(coordenada).setVelada(false);
 			respuesta = true;
@@ -85,22 +117,23 @@ public class Tablero {
 		return respuesta;
 	}
 
-	public void desvelarCasillasAlrededor(Coordenada coordenada) {
+	public boolean desvelarCasillasAlrededor(Coordenada coordenada) {
+		boolean respuesta = false;
 		int x = coordenada.getPosX();
 		int y = coordenada.getPosY();
 		for (int i = x - 1; i <= x + 1; i++) {
 			for (int j = y - 1; j <= y + 1; j++) {
 				Coordenada alrededor = new Coordenada(i, j);
 				if (!alrededor.equals(coordenada) && isDentroLimites(alrededor)) {
-					desvelarCasilla(alrededor);
+					respuesta = desvelarCasillaVelada(alrededor);
 				}
 			}
 		}
+		return respuesta;
 	}
 
 	public boolean marcarCasilla(Coordenada coordenada) {
 		return getCasilla(coordenada).marcar();
-
 	}
 
 	public Casilla[][] getCasillas() {

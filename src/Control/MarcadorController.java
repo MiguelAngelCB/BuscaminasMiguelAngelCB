@@ -2,7 +2,9 @@ package Control;
 
 import model.Coordenada;
 import model.Tablero;
+import utiles.ConversorGrafico;
 import vista.Botonera;
+import vista.ElementoGrafico;
 
 public class MarcadorController {
 
@@ -18,5 +20,9 @@ public class MarcadorController {
 	public boolean marcarCasilla(String name) {
 		Coordenada obtenCoordenada = Botonera.obtenCoordenada(name);
 		return tablero.marcarCasilla(obtenCoordenada);
+	}
+
+	public ElementoGrafico[][] getEntornoGrafico() {
+		return ConversorGrafico.convertir(tablero.getCasillas());
 	}
 }
