@@ -71,8 +71,16 @@ public class Tablero {
 		getCasilla(posicion).setMina(bandera);
 	}
 
-	private boolean isMina(Coordenada posicion) {
+	public boolean isMina(Coordenada posicion) {
 		return getCasilla(posicion).isMina();
+	}
+
+	public boolean isMarcada(Coordenada posicion) {
+		return getCasilla(posicion).isMarcada();
+	}
+
+	public boolean isVelada(Coordenada posicion) {
+		return getCasilla(posicion).isVelada();
 	}
 
 	public boolean desvelarCasilla(Coordenada coordenada) {

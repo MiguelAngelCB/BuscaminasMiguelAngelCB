@@ -24,18 +24,23 @@ public class Botonera extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			super.mouseClicked(e);
 			JButton boton = ((JButton) e.getSource());
+			if (boton.isEnabled()) {
+				if (SwingUtilities.isLeftMouseButton(e)) {
+					desveladorController.desvelarCasilla(boton.getName());
+				}
+				if (SwingUtilities.isRightMouseButton(e)) {
+					marcadorController.marcarCasilla(boton.getName());
+				}
+				// Al estar dentro de la botonera (el objeto)
+				actualizaBotonera(desveladorController.getEntornoGrafico());
+				comprobarAcabarPartida();
+			}
+		}
 
-			if (SwingUtilities.isLeftMouseButton(e)) {
-				desveladorController.desvelarCasilla(boton.getName());
+		private void comprobarAcabarPartida() {
+			if (desveladorController.comprobarAcabarPartida()) {
+				acabarPartida(desveladorController.getEntornoGrafico());
 			}
-			if (SwingUtilities.isRightMouseButton(e)) {
-				marcadorController.marcarCasilla(boton.getName());
-//				actualizaBotonera(marcadorController.getEntornoGrafico());
-//				comprobarAcabarPartida();
-			}
-			actualizaBotonera(desveladorController.getEntornoGrafico());
-			comprobarAcabarPartida();
-			// Al estar dentro de la botonera (el objeto)
 		}
 
 	};
@@ -100,46 +105,25 @@ public class Botonera extends JPanel {
 				Integer.valueOf(name.substring(pos, name.length())));
 	}
 
-	public boolean comprobarAcabarPartida() {
-		ElementoGrafico[][] elementoGrafico = desveladorController.getEntornoGrafico();
-		return comprobarGanador(elementoGrafico) || comprobarPerdedor(elementoGrafico);
-	}
-
-	public boolean comprobarGanador(ElementoGrafico[][] elementos) {
-		int i = 0;
-		do {
-			int j = 0;
-			do {
-				if (elementos[i][j].isMina() && !elementos[i][j].isMarcada()) {
-					return false;
-				}
-				j++;
-			} while (j < elementos[i].length);
-			i++;
-		} while (i < elementos.length);
-		desabilitarBotonera();
-		JOptionPane.showMessageDialog(null, "Felicidades has ganado");
-		return true;
-	}
-
-	public boolean comprobarPerdedor(ElementoGrafico[][] elementos) {
+	public boolean acabarPartida(ElementoGrafico[][] elementos) {
 		Component[] components = getComponents();
 		int i = 0;
+		desabilitarBotonera();
 		do {
 			int j = 0;
 			do {
 				if (elementos[i][j].isMina() && !elementos[i][j].isVelada()) {
 					JButton boton = (JButton) components[(i * elementos.length) + j];
 					boton.setBackground(Color.RED);
-					desabilitarBotonera();
 					JOptionPane.showMessageDialog(null, "Has perdido :(");
-					return true;
+					return false;
 				}
 				j++;
 			} while (j < elementos[i].length);
 			i++;
 		} while (i < elementos.length);
-		return false;
+		JOptionPane.showMessageDialog(null, "Felicidades has ganado");
+		return true;
 	}
 
 }

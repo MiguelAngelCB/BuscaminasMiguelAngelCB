@@ -30,4 +30,41 @@ public class DesveladorController {
 	public ElementoGrafico[][] getEntornoGrafico() {
 		return ConversorGrafico.convertir(tablero.getCasillas());
 	}
+
+	public boolean comprobarAcabarPartida() {
+		return comprobarGanador() || comprobarPerdedor();
+	}
+
+	public boolean comprobarGanador() {
+		int i = 0;
+		do {
+			int j = 0;
+			do {
+				Coordenada posicion = new Coordenada(i, j);
+				if (tablero.isMina(posicion) && !tablero.getCasilla(posicion).isMarcada()) {
+					return false;
+				}
+				j++;
+			} while (j < tablero.getCasillas()[i].length);
+			i++;
+		} while (i < tablero.getCasillas().length);
+		return true;
+	}
+
+	public boolean comprobarPerdedor() {
+		int i = 0;
+		do {
+			int j = 0;
+			do {
+				Coordenada posicion = new Coordenada(i, j);
+				if (tablero.isMina(posicion) && !tablero.isVelada(posicion)) {
+					return true;
+				}
+				j++;
+			} while (j < tablero.getCasillas()[i].length);
+			i++;
+		} while (i < tablero.getCasillas().length);
+		return false;
+	}
+
 }
